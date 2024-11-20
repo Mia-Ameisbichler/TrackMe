@@ -29,12 +29,14 @@ import SwiftData
         }
         
     }
+
     var formattedDuration: String {
         let calendar = Calendar.current
         let hours = calendar.component(.hour, from: duration)
         let minutes = calendar.component(.minute, from: duration)
         return String(format: "%02d:%02d", hours, minutes)
     }
+
     var formattedTime: String {
             let formatter = DateFormatter()
             formatter.timeStyle = .short
