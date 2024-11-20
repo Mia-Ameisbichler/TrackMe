@@ -13,7 +13,7 @@ import SwiftUI
     var time: Date = Date()
     var regularity: [Bool] = [false, false, false, false, false, false, false]
     var notification: Bool = false
-    var duration: TimeInterval = 0
+    var duration: Date = Date()
     var image: UIImage = UIImage()
     
     init(habit: Habit? = nil) {

@@ -15,7 +15,7 @@ import SwiftData
     var time: Date
     var regularity: [Bool] 
     var notification: Bool
-    var duration: TimeInterval // Duration in seconds
+    var duration: Date
     
     @Attribute(.externalStorage) var imageData = Data()
     
@@ -30,20 +30,21 @@ import SwiftData
         
     }
     var formattedDuration: String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+        let calendar = Calendar.current
+        let hours = calendar.component(.hour, from: duration)
+        let minutes = calendar.component(.minute, from: duration)
+        return String(format: "%02d:%02d", hours, minutes)
     }
     var formattedTime: String {
             let formatter = DateFormatter()
-            formatter.timeStyle = .short // "3:15 PM" style
-            formatter.dateStyle = .none // Only time, no date
+            formatter.timeStyle = .short
+            formatter.dateStyle = .none
             return formatter.string(from: time)
         
         
     }
     
-    init(name: String, decription: String, time: Date, regularity: [Bool], notification: Bool, image: UIImage = UIImage(), duration: TimeInterval) {
+    init(name: String, decription: String, time: Date, regularity: [Bool], notification: Bool, image: UIImage = UIImage(), duration: Date) {
         self.name = name
         self.info = decription
         self.time = time
@@ -51,12 +52,11 @@ import SwiftData
         self.notification = notification
         self.duration = duration
         self.image = image
-        
     }
 }
 
 extension Habit {
     static var dummyData = [
-        Habit(name: "running", decription: "go for a run", time: Calendar.current.date(bySettingHour: 6, minute: 30, second: 0, of: Date())!, regularity: [false, true], notification: true, image: UIImage(resource: .running), duration: 300)
+        Habit(name: "running", decription: "go for a run", time: Date(), regularity: [false, true], notification: true, image: UIImage(resource: .running), duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!)
     ]
 }
