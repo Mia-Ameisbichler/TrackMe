@@ -17,12 +17,14 @@ struct HabitView: View {
     @State private var description: String = ""
     @State private var regularity: [Bool] = [false, false, false, false, false, false, false]
     @State private var notification: Bool = false
-    @State private var duration: TimeInterval = 0
+    @State private var duration: Duration = .seconds(0)
+    @State private var showPhotoOptions = false
     
+    let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
     //@State private var image = UIImage(resource: .addPhoto)
     //let notficationService: Notification
     
-    @State private var showPhotoOptions = false
     
     enum PhotoSource: Identifiable {
         case photoLibrary
@@ -68,7 +70,12 @@ struct HabitView: View {
                 }
                 
                 Section(header: Text("Duration")) {
-                    
+                    DatePicker(
+                        "Select time",
+                        selection: $time,
+                        displayedComponents: .hourAndMinute
+                    )
+                    .datePickerStyle(WheelDatePickerStyle())
                 }
                 
                 Section(header: Text("Notification")) {
@@ -85,10 +92,26 @@ struct HabitView: View {
                             selection: $time,
                             displayedComponents: .hourAndMinute
                         )
-                        .datePickerStyle(WheelDatePickerStyle()) // Scrollable style
+                        .datePickerStyle(WheelDatePickerStyle())
                     }
+                    
                     Section(header: Text("Regularity")) {
-                        
+                        VStack {
+                            ForEach(weekdays.indices, id: \.self) { index in
+                                Button(action: {
+                                    habitViewModel.regularity[index].toggle()
+                                }) {
+                                    Text(weekdays[index])
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(habitViewModel.regularity[index] ? Color.blue : Color.clear)
+                                        .foregroundColor(habitViewModel.regularity[index] ? .white : .primary)
+                                        .cornerRadius(8)
+                                        .bold(habitViewModel.regularity[index])
+                                }
+                                .buttonStyle(BorderlessButtonStyle())
+                            }
+                        }
                     }
                 }
                 
