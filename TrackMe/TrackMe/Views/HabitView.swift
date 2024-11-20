@@ -119,8 +119,8 @@ struct HabitView: View {
             .navigationTitle("New Habit")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        saveHabit()
+                        Button("Save") {
+                            saveHabit()
                     }
                 }
             }
