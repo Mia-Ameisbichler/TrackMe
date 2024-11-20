@@ -31,7 +31,7 @@ struct TimerView: View {
                         .cornerRadius(10)
                 }
                 
-                NavigationLink(destination: StartTimerView(habit: exampleHabit)) { // Another NavigationLink for the second button
+                NavigationLink(destination: DismissTimerView()) { // Another NavigationLink for the second button
                     Text("Dismiss")
                         .font(.headline)
                         .padding()
