@@ -15,6 +15,15 @@ struct TrackMeApp: App {
         requestNotificationPermissions()
     }
     
+    let exampleHabit = Habit(
+        name: "Morning Yoga",
+        decription: "15-minute daily yoga session to improve flexibility and focus.",
+        time: Date(),
+        regularity: [true, true, true, true, true, false, false], // Mon-Fri active
+        notification: true,
+        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!
+    )
+    
     var body: some Scene {
         WindowGroup {
             HabitListView()
@@ -41,15 +50,30 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
     }
     
+    private func handleNotification(_ notification: UNNotification) {
+        if let habitData = notification.request.content.userInfo["habit"] as? Data {
+            let decoder = JSONDecoder()
+            if let habit = try? decoder.decode(Habit.self, from: habitData) {
+                // Post the decoded habit to SwiftUI
+                NotificationCenter.default.post(name: .openHabitDetail, object: habit)
+            }
+        }
+    }
+    
     // This method is called when a notification is delivered to the app while it's in the foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        // Show the notification even when the app is open (foreground)
+        // Handle the notification while the app is in the foreground
+        handleNotification(notification)
+
+        // Optionally show the notification banner
         completionHandler([.banner, .badge, .sound])
     }
     
     // Optional: Handle when the user interacts with the notification (e.g., taps it)
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        print("User interacted with the notification: \(response.notification.request.identifier)")
+        // Handle the notification when the user taps it
+        handleNotification(response.notification)
+
         completionHandler()
     }
 }
