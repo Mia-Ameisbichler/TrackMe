@@ -41,13 +41,13 @@ struct HabitListView: View {
                     }
                 } else {
                     let listItems = isSearchActive ? searchResult : habits
-                    
+                                        
                     ForEach(listItems, id: \.self) { habit in
-                        NavigationLink(destination: DetailView()) {
+                        NavigationLink(destination: DetailView(habit: habit)) {
                             HabitRowView(habit: habit)
                         }
                     }
-                    .onDelete(perform: deleteHabit) // Add swipe-to-delete functionality
+                    .onDelete(perform: deleteHabit)
                 }
             }
             .navigationTitle("My Habits")
@@ -62,11 +62,12 @@ struct HabitListView: View {
             }
             .sheet(isPresented: $showNewHabit) {
                 HabitView()
+                .environment(\.modelContext, modelContext)
             }
         }
         .navigationBarBackButtonHidden(true) // Hides the back button.
     }
-    
+                        
     func deleteHabit(at offsets: IndexSet) {
         for index in offsets {
             let habit = habits[index]
@@ -129,7 +130,7 @@ struct HabitRowView: View {
     let container = try! ModelContainer(for: Habit.self, configurations: config)
     
         for i in 0..<7 {
-        let user = Habit(name: "running", decription: "go for a run", time: Date(), regularity: [false, true], notification: true, image: UIImage(resource: .running), duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!)
+            let user = Habit(name: "running", info: "go for a run", time: Date(), regularity: [false, true], notification: true, image: UIImage(resource: .running), duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!, streak: 5)
         container.mainContext.insert(user)
     }
     

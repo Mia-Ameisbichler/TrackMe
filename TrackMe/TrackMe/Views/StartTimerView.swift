@@ -43,6 +43,7 @@ struct StartTimerView: View {
             .disabled(isTimerRunning || isTimerFinished)
 
             // Finish Button
+           //NavigationLink(destination: DetailView(habit: Habit)
             Button(action: finishTimer) {
                 Text("Finish")
                     .font(.headline)
@@ -110,11 +111,12 @@ struct StartTimerView: View {
 
 #Preview {
     let exampleHabit = Habit(
-        name: "Morning Yoga",decription: "15-minute daily yoga session to improve flexibility and focus.",
+        name: "Morning Yoga",info: "15-minute daily yoga session to improve flexibility and focus.",
         time: Date(),
         regularity: [true, true, true, true, true, false, false],
         notification: true,
-        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 0, second: 10))!
+        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 0, second: 10))!,
+        streak: 5
     )
     StartTimerView(habit: exampleHabit)
 }

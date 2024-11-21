@@ -14,10 +14,10 @@ struct HabitView: View {
     @Bindable private var habitViewModel: HabitViewModel
     @State private var name: String = ""
     @State private var time: Date = Date()
-    @State private var description: String = ""
+    @State private var info: String = ""
     @State private var regularity: [Bool] = [false, false, false, false, false, false, false]
     @State private var notification: Bool = false
-    @State private var duration: Duration = .seconds(0)
+    @State private var duration: Date = Date()
     @State private var showPhotoOptions = false
     
     let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -52,7 +52,7 @@ struct HabitView: View {
                 }
                 
                 Section(header: Text("Description")) {
-                    TextField("Enter a description", text: $description)
+                    TextField("Enter a description", text: $info)
                 }
                 
                 Section(header: Text("Add an image")) {
@@ -119,8 +119,9 @@ struct HabitView: View {
             .navigationTitle("New Habit")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Save") {
-                            saveHabit()
+                    Button("Save") {
+                        saveHabit()
+                        dismiss()
                     }
                 }
             }
@@ -149,14 +150,16 @@ struct HabitView: View {
     
     func saveHabit() {
         let newHabit = Habit(
-            name: habitViewModel.name,
-            decription: habitViewModel.decription,
-            time: habitViewModel.time,
-            regularity: habitViewModel.regularity,
-            notification: habitViewModel.notification,
+            name: name,
+            info: info,
+            time: time,
+            regularity: regularity,
+            notification: notification,
             image: habitViewModel.image,
-            duration: habitViewModel.duration)
+            duration: duration,
+            streak: 0)
         print("Saved Habit: \(newHabit)")
+        
         modelContext.insert(newHabit)
     }
 }

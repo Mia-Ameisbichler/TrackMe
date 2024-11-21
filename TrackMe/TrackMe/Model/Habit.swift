@@ -16,6 +16,7 @@ import SwiftData
     var regularity: [Bool] 
     var notification: Bool
     var duration: Date
+    var streak: Int
     
     @Attribute(.externalStorage) var imageData = Data()
     
@@ -46,14 +47,16 @@ import SwiftData
         
     }
     
-    init(name: String, decription: String, time: Date, regularity: [Bool], notification: Bool, image: UIImage = UIImage(), duration: Date) {
+    init(name: String, info: String, time: Date, regularity: [Bool], notification: Bool, image: UIImage = UIImage(), duration: Date, streak: Int) {
         self.name = name
-        self.info = decription
+        self.info = info
         self.time = time
         self.regularity = regularity
         self.notification = notification
         self.duration = duration
+        self.streak = streak
         self.image = image
+        
     }
     
     func encode(to encoder: Encoder) throws {
@@ -85,6 +88,6 @@ import SwiftData
 
 extension Habit {
     static var dummyData = [
-        Habit(name: "running", decription: "go for a run", time: Date(), regularity: [false, true], notification: true, image: UIImage(resource: .running), duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!)
+        Habit(name: "running", info: "go for a run", time: Date(), regularity: [false, true], notification: true, image: UIImage(resource: .running), duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!, streak: 5)
     ]
 }
