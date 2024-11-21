@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct DismissTimerView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var selectedOption: String? = nil
+    var habit: Habit
+    var notification: Notification {
+        Notification(habit: habit)
+    }
     
     var body: some View {
         NavigationStack {
@@ -28,8 +33,9 @@ struct DismissTimerView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.gray, lineWidth: 2)
                     )
-
-                    Button(action: { handleOption("Dismissed for Today") }) {
+                    
+                    NavigationLink(destination: HabitListView()){
+                        EmptyView()
                         Text("Today")
                             .font(.headline)
                             .padding()
@@ -38,18 +44,24 @@ struct DismissTimerView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
-                    
-                    Button(action: { handleOption("Remind Me Later") }) {
-                        Text("Remind Me Later")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.orange.opacity(1))
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
+                        
+                    Button{
+                        notification.scheduleReminderNotification()
+                    } label: {
+                        NavigationLink(destination: HabitListView()){
+                            EmptyView()
+                            Text("Remind Me Later")
+                                .font(.headline)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.orange.opacity(1))
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
                     }
                     
                     Button(action: {
+                        dismiss()
                     }) {
                         Text("Cancel")
                             .font(.headline)
@@ -61,9 +73,8 @@ struct DismissTimerView: View {
                     }
                 }
             }
+            .navigationBarBackButtonHidden()
             .edgesIgnoringSafeArea(.all)
-            .allowsHitTesting(false)
-
         }
         .padding()
         .onChange(of: selectedOption) { newValue in
@@ -83,14 +94,17 @@ struct DismissTimerView: View {
         ]
         return smileys.randomElement()!
     }
-    
-    private func handleOption(_ option: String) {
-        selectedOption = option
-    }
 }
 
-struct DismissTimerView_Previews: PreviewProvider {
-    static var previews: some View {
-        DismissTimerView()
-    }
+#Preview {
+    let exampleHabit = Habit(
+        name: "Morning Yoga",
+        decription: "15-minute daily yoga session to improve flexibility and focus.",
+        time: Date(),
+        regularity: [true, true, true, true, true, false, false], // Mon-Fri active
+        notification: true,
+        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!
+    )
+    
+    DismissTimerView(habit: exampleHabit)
 }

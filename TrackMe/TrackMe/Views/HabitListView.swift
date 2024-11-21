@@ -25,54 +25,55 @@ struct HabitListView: View {
         NavigationStack {
             List {
                 if habits.isEmpty {
-                                    VStack {
-                                        NavigationLink(destination: HabitView()) {
-                                            Image(uiImage: UIImage(resource: .running))
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(height: 200)
-                                                .padding()
-                                            
-                                        }
-                                        Text("No habits yet. Add a new habit to get started!")
-                                            .multilineTextAlignment(.center)
-                                            .foregroundColor(.secondary)
-                                            .padding()
-                                    }
+                    VStack {
+                        NavigationLink(destination: HabitView()) {
+                            Image(uiImage: UIImage(resource: .running))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 200)
+                                .padding()
+                            
+                        }
+                        Text("No habits yet. Add a new habit to get started!")
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                            .padding()
+                    }
                 } else {
                     let listItems = isSearchActive ? searchResult : habits
-                                        
-                                        ForEach(listItems, id: \.self) { habit in
-                                            NavigationLink(destination: DetailView()) {
-                                                HabitRowView(habit: habit)
-                                            }
-                                        }
-                                        .onDelete(perform: deleteHabit) // Add swipe-to-delete functionality
-                                    }
-                                }
-                                .navigationTitle("My Habits")
-                                .toolbar {
-                                    ToolbarItem(placement: .navigationBarTrailing) {
-                                        Button {
-                                            showNewHabit = true
-                                        } label: {
-                                            Label("Add Habit", systemImage: "plus")
-                                        }
-                                    }
-                                }
-                                .sheet(isPresented: $showNewHabit) {
-                                    HabitView()
-                                }
-                            }
-                        }
-                        
-                        func deleteHabit(at offsets: IndexSet) {
-                            for index in offsets {
-                                let habit = habits[index]
-                                modelContext.delete(habit)
-                            }
+                    
+                    ForEach(listItems, id: \.self) { habit in
+                        NavigationLink(destination: DetailView()) {
+                            HabitRowView(habit: habit)
                         }
                     }
+                    .onDelete(perform: deleteHabit) // Add swipe-to-delete functionality
+                }
+            }
+            .navigationTitle("My Habits")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showNewHabit = true
+                    } label: {
+                        Label("Add Habit", systemImage: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showNewHabit) {
+                HabitView()
+            }
+        }
+        .navigationBarBackButtonHidden(true) // Hides the back button.
+    }
+    
+    func deleteHabit(at offsets: IndexSet) {
+        for index in offsets {
+            let habit = habits[index]
+            modelContext.delete(habit)
+        }
+    }
+}
 
 struct HabitRowView: View {
     let habit: Habit

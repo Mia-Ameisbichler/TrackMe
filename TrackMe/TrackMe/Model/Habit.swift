@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 import SwiftData
-@Model class Habit {
+@Model class Habit: Codable{
     
     var name: String
     var info: String
@@ -54,6 +54,32 @@ import SwiftData
         self.notification = notification
         self.duration = duration
         self.image = image
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(info, forKey: .info)
+        try container.encode(time, forKey: .time)
+        try container.encode(regularity, forKey: .regularity)
+        try container.encode(notification, forKey: .notification)
+        try container.encode(duration, forKey: .duration)
+        try container.encode(imageData, forKey: .imageData)
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.info = try container.decode(String.self, forKey: .info)
+        self.time = try container.decode(Date.self, forKey: .time)
+        self.regularity = try container.decode([Bool].self, forKey: .regularity)
+        self.notification = try container.decode(Bool.self, forKey: .notification)
+        self.duration = try container.decode(Date.self, forKey: .duration)
+        self.imageData = try container.decode(Data.self, forKey: .imageData)
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case name, info, time, regularity, notification, duration, imageData
     }
 }
 

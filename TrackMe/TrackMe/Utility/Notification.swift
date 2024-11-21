@@ -2,6 +2,45 @@ import SwiftUI
 import UserNotifications
 
 struct Notification {
+    var habit: Habit
+    
+    init(habit: Habit) {
+        self.habit = habit
+    }
+    
+    // Single Use Notification
+    func scheduleReminderNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Reminder"
+        content.body = "This notification will show up when the User chose to be reminded later"
+        content.sound = .default
+
+        // Serialize Habit into JSON
+        let encoder = JSONEncoder()
+        if let habitData = try? encoder.encode(habit) {
+            content.userInfo = ["habit": habitData]
+        }
+        
+        // Calculate the trigger date 30 minutes from now
+        let triggerDate = Date().addingTimeInterval(30 * 60) // 30 minutes in seconds
+        let triggerDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: triggerDate)
+        
+        // Create a non-repeating trigger
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: false)
+        
+        // Create the notification request
+        let request = UNNotificationRequest(identifier: "reminderNotification", content: content, trigger: trigger)
+        
+        // Schedule the notification
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling notification: \(error.localizedDescription)")
+            } else {
+                print("One-time notification scheduled for 30 minutes from now.")
+            }
+        }
+    }
+    
     // Daily Notification
     func scheduleDailyNotification(hour: Int, minute: Int) {
         let content = UNMutableNotificationContent()

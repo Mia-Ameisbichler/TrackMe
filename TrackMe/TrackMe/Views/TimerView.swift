@@ -2,17 +2,13 @@ import SwiftUI
 import SwiftData
 
 struct TimerView: View {
-    let exampleHabit = Habit(
-        name: "Morning Yoga",
-        decription: "15-minute daily yoga session to improve flexibility and focus.",
-        time: Date(),
-        regularity: [true, true, true, true, true, false, false], // Mon-Fri active
-        notification: true,
-        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!
-    )
+    @State var habit: Habit
+    var notification: Notification {
+        Notification(habit: habit)
+    }
     
     var body: some View {
-        NavigationView {
+        NavigationStack() {
             VStack(spacing: 20) {
                 Image("clock")
                     .resizable()
@@ -21,7 +17,7 @@ struct TimerView: View {
                     .aspectRatio(contentMode: .fit)
                     .padding(.bottom, 20)
                 
-                NavigationLink(destination: StartTimerView(habit: exampleHabit)) {
+                NavigationLink(destination: StartTimerView(habit: habit)) {
                     Text("Start Now")
                         .font(.headline)
                         .padding()
@@ -31,7 +27,8 @@ struct TimerView: View {
                         .cornerRadius(10)
                 }
                 
-                NavigationLink(destination: DismissTimerView()) { // Another NavigationLink for the second button
+                NavigationLink(destination: DismissTimerView(habit: habit)){
+                    EmptyView()
                     Text("Dismiss")
                         .font(.headline)
                         .padding()
@@ -41,13 +38,26 @@ struct TimerView: View {
                         .cornerRadius(10)
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .openHabitDetail)) { notification in
+                if let habit = notification.object as? Habit {
+                    self.habit = habit
+                }
+            }
             .padding()
-            .navigationTitle("Timer")
-            .navigationBarTitleDisplayMode(.inline)
         }
+        .navigationBarBackButtonHidden(true) // Hides the back button.
     }
 }
 
 #Preview {
-    TimerView()
+    let exampleHabit = Habit(
+        name: "Morning Yoga",
+        decription: "15-minute daily yoga session to improve flexibility and focus.",
+        time: Date(),
+        regularity: [true, true, true, true, true, false, false], // Mon-Fri active
+        notification: true,
+        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!
+    )
+    
+    TimerView(habit: exampleHabit)
 }
