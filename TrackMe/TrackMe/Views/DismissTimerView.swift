@@ -99,11 +99,12 @@ struct DismissTimerView: View {
 #Preview {
     let exampleHabit = Habit(
         name: "Morning Yoga",
-        decription: "15-minute daily yoga session to improve flexibility and focus.",
+        info: "15-minute daily yoga session to improve flexibility and focus.",
         time: Date(),
         regularity: [true, true, true, true, true, false, false], // Mon-Fri active
         notification: true,
-        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!
+        duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!,
+        streak: 5
     )
     
     DismissTimerView(habit: exampleHabit)

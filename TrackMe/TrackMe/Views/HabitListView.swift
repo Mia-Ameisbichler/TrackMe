@@ -66,14 +66,95 @@ struct HabitListView: View {
             }
         }
         .navigationBarBackButtonHidden(true) // Hides the back button.
-    }
-                        
-    func deleteHabit(at offsets: IndexSet) {
-        for index in offsets {
-            let habit = habits[index]
-            modelContext.delete(habit)
+        .tint(.primary)
+        .searchable(text: $searchText, isPresented: $isSearchActive,
+                    placement: .navigationBarDrawer(displayMode: .automatic),
+                    prompt: "Search habit")
+        .searchSuggestions{
+            if searchText.isEmpty {
+                
+            }
+        }
+        .onChange(of: searchText) { oldValue, newValue in
+            let predicate = #Predicate<Habit> { $0.name.localizedStandardContains(newValue)}
+            // Exercise
+            /**
+             let predicate = #Predicate<Food> { $0.name.localizedStandardContains(newValue) || $0.cuisine.localizedStandardContains(newValue) || $0.type.localizedStandardContains(newValue) || $0.address.localizedStandardContains(newValue) }
+             */
+            
+            let descriptor = FetchDescriptor<Habit>(predicate: predicate)
+            
+            if let result = try? modelContext.fetch(descriptor) { searchResult = result
+            }
+        }
+        .onAppear {
+            if(habits.isEmpty) {
+                self.loadHabitsArray()
+            }
         }
     }
+    
+    private func deleteHabit(indexSet: IndexSet) {
+        
+        guard indexSet.allSatisfy({ $0 < habits.count }) else {
+            print("Error: Attempted to delete an out-of-bounds index.")
+            return
+        }
+        
+        for index in indexSet {
+            let itemToDelete = habits[index]
+            modelContext.delete(itemToDelete)
+        }
+        
+    }
+    
+    private func loadHabitsArray() {
+        isLoading = true
+        
+        loadHabits { result in
+            
+            switch result {
+            case .success(let habitsArray):
+                for habit in habitsArray {
+                    save(habit: habit)
+                }
+                isLoading = false
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
+            
+        }
+    }
+    
+    private func deleteAllRecords() {
+        for item in habits {
+            modelContext.delete(item)
+        }
+    }
+    
+    private func save(habit: HabitJson) {
+        guard let time = isoStringToDate(habit.time) else {
+            print("Error: Invalid time format")
+            return
+        }
+        
+        guard let duration = hhmmStringToDate(habit.duration) else {
+            print("Error: Invalid duration format")
+            return
+        }
+
+        let habit = Habit(name: habit.name,
+                          info: habit.info,
+                          time: time,
+                          regularity: habit.regularity,
+                          notification: habit.notification,
+                          image: UIImage(named: habit.image) ?? UIImage(),
+                          duration: duration,
+                          streak: habit.streak)
+        
+        modelContext.insert(habit)
+    }
+
 }
 
 struct HabitRowView: View {

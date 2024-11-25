@@ -56,7 +56,7 @@ import SwiftData
         self.duration = duration
         self.streak = streak
         self.image = image
-        
+        self.streak = streak
     }
     
     func encode(to encoder: Encoder) throws {
@@ -68,6 +68,7 @@ import SwiftData
         try container.encode(notification, forKey: .notification)
         try container.encode(duration, forKey: .duration)
         try container.encode(imageData, forKey: .imageData)
+        try container.encode(streak, forKey: .streak)
     }
     
     required init(from decoder: Decoder) throws {
@@ -79,10 +80,11 @@ import SwiftData
         self.notification = try container.decode(Bool.self, forKey: .notification)
         self.duration = try container.decode(Date.self, forKey: .duration)
         self.imageData = try container.decode(Data.self, forKey: .imageData)
+        self.streak = try container.decode(Int.self , forKey: .streak)
     }
     
     enum CodingKeys: String, CodingKey {
-        case name, info, time, regularity, notification, duration, imageData
+        case name, info, time, regularity, notification, duration, imageData, streak
     }
 }
 
