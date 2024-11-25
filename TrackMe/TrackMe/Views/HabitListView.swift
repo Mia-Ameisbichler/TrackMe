@@ -24,7 +24,7 @@ struct HabitListView: View {
     var body: some View {
         NavigationStack {
             List {
-                if habits.isEmpty {
+                if habits.count <= 0 {
                     VStack {
                         NavigationLink(destination: HabitView()) {
                             Image(uiImage: UIImage(resource: .running))
@@ -60,13 +60,12 @@ struct HabitListView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showNewHabit) {
-                HabitView()
-                .environment(\.modelContext, modelContext)
-            }
         }
         .navigationBarBackButtonHidden(true) // Hides the back button.
         .tint(.primary)
+        .sheet(isPresented: $showNewHabit, content: {
+            HabitView()
+        })
         .searchable(text: $searchText, isPresented: $isSearchActive,
                     placement: .navigationBarDrawer(displayMode: .automatic),
                     prompt: "Search habit")
@@ -89,6 +88,7 @@ struct HabitListView: View {
         }
         .onAppear {
             if(habits.isEmpty) {
+                print("On Appear: No habits found. Loading habits...")
                 self.loadHabitsArray()
             }
         }
@@ -119,6 +119,7 @@ struct HabitListView: View {
                     save(habit: habit)
                 }
                 isLoading = false
+                print("Loaded Habits")
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
             }
@@ -153,6 +154,7 @@ struct HabitListView: View {
                           streak: habit.streak)
         
         modelContext.insert(habit)
+        print("Saved Habit: \(habit.name)")
     }
 
 }

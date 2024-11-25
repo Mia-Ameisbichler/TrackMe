@@ -66,36 +66,45 @@ public func hhmmStringToDate(_ hhmmString: String) -> Date? {
     ))
 }
 
-// Function to load HabitJson from a JSON API
 func loadHabits(completion: @escaping (Result<[HabitJson], Error>) -> Void) {
-    guard let url = URL(string: "https://your.api.endpoint/habits.json") else {
-        completion(.failure(URLError(.badURL)))
+    // Test JSON string
+    let testJsonString = """
+    [
+        {
+            "name": "Running",
+            "info": "Go for a morning run",
+            "time": "2024-11-25T07:30:00.000Z",
+            "regularity": [true, false, true, false, true, false, false],
+            "notification": true,
+            "duration": "00:30",
+            "streak": 5,
+            "image": "running"
+        },
+        {
+            "name": "Meditation",
+            "info": "Daily meditation session",
+            "time": "2024-11-25T08:00:00.000Z",
+            "regularity": [true, true, true, true, true, false, false],
+            "notification": false,
+            "duration": "00:20",
+            "streak": 10,
+            "image": "running"
+        }
+    ]
+    """
+    
+    // Convert JSON string to Data
+    guard let jsonData = testJsonString.data(using: .utf8) else {
+        completion(.failure(URLError(.cannotDecodeRawData)))
         return
     }
-
-    URLSession.shared.dataTask(with: url) { data, response, error in
-        if let error = error {
-            completion(.failure(error))
-            return
-        }
-
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            completion(.failure(URLError(.badServerResponse)))
-            return
-        }
-
-        guard let data = data else {
-            completion(.failure(URLError(.cannotLoadFromNetwork)))
-            return
-        }
-
-        do {
-            let decodedHabits = try JSONDecoder().decode([HabitJson].self, from: data)
-            DispatchQueue.main.async {
-                completion(.success(decodedHabits))
-            }
-        } catch {
-            completion(.failure(error))
-        }
-    }.resume()
+    
+    // Decode the JSON data
+    do {
+        let decodedHabits = try JSONDecoder().decode([HabitJson].self, from: jsonData)
+        completion(.success(decodedHabits))
+    } catch {
+        completion(.failure(error))
+    }
 }
+
