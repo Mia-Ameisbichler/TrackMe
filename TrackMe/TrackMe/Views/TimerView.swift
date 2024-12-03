@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct TimerView: View {
-    @State var habit: Habit
+    var habit: Habit
     var notification: Notification {
         Notification(habit: habit)
     }
@@ -36,11 +36,6 @@ struct TimerView: View {
                         .background(Color.gray.opacity(0.2))
                         .foregroundColor(.black)
                         .cornerRadius(10)
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .openHabitDetail)) { notification in
-                if let habit = notification.object as? Habit {
-                    self.habit = habit
                 }
             }
             .padding()

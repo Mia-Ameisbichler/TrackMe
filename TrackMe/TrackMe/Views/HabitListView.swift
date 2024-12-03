@@ -20,6 +20,9 @@ struct HabitListView: View {
     
     @State private var isLoading = false
     
+    //Notification relevant variables
+    @State private var selectedHabit: Habit?
+    @State private var showTimerView = false
     
     var body: some View {
         NavigationStack {
@@ -59,10 +62,36 @@ struct HabitListView: View {
                         Label("Add Habit", systemImage: "plus")
                     }
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        sendTestNotification()
+                    } label: {
+                        Label("Test Notification", systemImage: "bell")
+                    }
+                }
+            }
+            NavigationLink(
+                destination: TimerView(habit: selectedHabit ?? Habit.default),
+                isActive: $showTimerView
+            ) {
+                EmptyView() // Placeholder view; this is required for NavigationLink
             }
         }
         .navigationBarBackButtonHidden(true) // Hides the back button.
         .tint(.primary)
+        .onReceive(NotificationCenter.default.publisher(for: .openHabitDetail)) { notification in
+            if let habit = notification.object as? Habit {
+                print("Received openHabitDetail for habit: \(habit.name)")
+                selectedHabit = habit
+                showTimerView = true
+            } else {
+                print("Failed to cast notification object to Habit.")
+            }
+        }
+
+        .background(
+
+        )
         .sheet(isPresented: $showNewHabit, content: {
             HabitView()
         })
@@ -93,6 +122,39 @@ struct HabitListView: View {
             }
         }
     }
+    
+    private func sendTestNotification() {
+        let testHabit = Habit.default // Use the default habit or create a dummy one.
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Test Notification"
+        content.body = "This is a test notification for the habit: \(testHabit.name)"
+        content.sound = .default
+
+        // Serialize Habit into JSON
+        let encoder = JSONEncoder()
+        if let habitData = try? encoder.encode(testHabit) {
+            content.userInfo = ["habit": habitData]
+        }
+        
+        // Schedule the notification for one minute from now
+        let triggerDate = Date().addingTimeInterval(10) // 60 seconds
+        let triggerDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: triggerDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: false)
+
+        let request = UNNotificationRequest(identifier: "testNotification", content: content, trigger: trigger)
+
+        // Add the notification request
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling test notification: \(error.localizedDescription)")
+            } else {
+                print("Test notification scheduled for 10 seconds from now.")
+            }
+        }
+    }
+
+    
     
     private func deleteHabit(indexSet: IndexSet) {
         

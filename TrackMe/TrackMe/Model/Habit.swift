@@ -93,3 +93,18 @@ extension Habit {
         Habit(name: "running", info: "go for a run", time: Date(), regularity: [false, true], notification: true, image: UIImage(resource: .running), duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1, second: 0))!, streak: 5)
     ]
 }
+
+extension Habit {
+    static var `default`: Habit {
+        Habit(
+            name: "Default Habit",
+            info: "This is a default habit.",
+            time: Date(),
+            regularity: [false, false, false, false, false, false, false],
+            notification: false,
+            image: UIImage(),
+            duration: Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1, minute: 1))!,
+            streak: 0
+        )
+    }
+}

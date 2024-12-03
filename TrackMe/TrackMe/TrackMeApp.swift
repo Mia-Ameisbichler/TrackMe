@@ -52,12 +52,20 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
     
     private func handleNotification(_ notification: UNNotification) {
+        print("Notification received: \(notification.request.content.title)")
+
         if let habitData = notification.request.content.userInfo["habit"] as? Data {
             let decoder = JSONDecoder()
             if let habit = try? decoder.decode(Habit.self, from: habitData) {
-                // Post the decoded habit to SwiftUI
-                NotificationCenter.default.post(name: .openHabitDetail, object: habit)
+                print("Decoded habit: \(habit.name)")
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .openHabitDetail, object: habit)
+                }
+            } else {
+                print("Failed to decode habit data.")
             }
+        } else {
+            print("No habit data found in userInfo.")
         }
     }
     

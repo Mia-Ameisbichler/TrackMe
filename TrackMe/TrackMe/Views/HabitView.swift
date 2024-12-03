@@ -17,14 +17,12 @@ struct HabitView: View {
     @State private var info: String = ""
     @State private var regularity: [Bool] = [false, false, false, false, false, false, false]
     @State private var notification: Bool = false
-    @State private var duration: Date = Date()
+    @State private var duration: Date = Calendar.current.date(from: DateComponents(year: 1970, month: 1, day: 1, hour: 1))!
     @State private var showPhotoOptions = false
     
     let weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     //@State private var image = UIImage(resource: .addPhoto)
-    //let notficationService: Notification
-    
     
     enum PhotoSource: Identifiable {
         case photoLibrary
@@ -71,8 +69,8 @@ struct HabitView: View {
                 
                 Section(header: Text("Duration")) {
                     DatePicker(
-                        "Select time",
-                        selection: $time,
+                        "Select duration",
+                        selection: $duration,
                         displayedComponents: .hourAndMinute
                     )
                     .datePickerStyle(WheelDatePickerStyle())
@@ -99,15 +97,15 @@ struct HabitView: View {
                         VStack {
                             ForEach(weekdays.indices, id: \.self) { index in
                                 Button(action: {
-                                    habitViewModel.regularity[index].toggle()
+                                    regularity[index].toggle() // Update regularity directly
                                 }) {
                                     Text(weekdays[index])
                                         .padding()
                                         .frame(maxWidth: .infinity)
-                                        .background(habitViewModel.regularity[index] ? Color.blue : Color.clear)
-                                        .foregroundColor(habitViewModel.regularity[index] ? .white : .primary)
+                                        .background(regularity[index] ? Color.blue : Color.clear) // Use regularity here
+                                        .foregroundColor(regularity[index] ? .white : .primary)
                                         .cornerRadius(8)
-                                        .bold(habitViewModel.regularity[index])
+                                        .bold(regularity[index])
                                 }
                                 .buttonStyle(BorderlessButtonStyle())
                             }
@@ -149,6 +147,8 @@ struct HabitView: View {
     }
     
     func saveHabit() {
+        let adjustedDuration = Calendar.current.date(byAdding: .hour, value: 1, to: duration) ?? duration
+
         let newHabit = Habit(
             name: name,
             info: info,
@@ -156,11 +156,19 @@ struct HabitView: View {
             regularity: regularity,
             notification: notification,
             image: habitViewModel.image,
-            duration: duration,
+            duration: adjustedDuration,
             streak: 0)
         print("Saved Habit: \(newHabit)")
         
         modelContext.insert(newHabit)
+        
+        if(notification != false ){
+            var notificationService: Notification {
+                Notification(habit: newHabit)
+            }
+            
+            notificationService.scheduleNewNotification()
+        }
     }
 }
 
