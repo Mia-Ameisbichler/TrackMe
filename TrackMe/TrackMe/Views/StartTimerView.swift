@@ -6,7 +6,8 @@ struct StartTimerView: View {
     @State private var isTimerFinished = false
     @State private var timerEndDate: Date?
     @State private var isFinishEnabled = false
-
+    @State private var finished = false
+    
     let habit: Habit
 
     init(habit: Habit) {
@@ -15,62 +16,67 @@ struct StartTimerView: View {
     }
 
     var body: some View {
-        VStack(spacing: 40) {
-            // Circular Progress Indicator with Countdown
-            ZStack {
-                Circle()
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 20)
-                Circle()
-                    .trim(from: 0, to: progress)
-                    .stroke(Color.blue, style: StrokeStyle(lineWidth: 20, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                Text(formatTime(remainingTime))
-                    .font(.largeTitle)
-                    .bold()
-            }
-            .frame(width: 200, height: 200)
-
-            // Ready Button
-            Button(action: startTimer) {
-                Text("Ready")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(isTimerRunning || isTimerFinished ? Color.gray.opacity(0.2) : Color.green)
-                    .foregroundColor(isTimerRunning || isTimerFinished ? .gray : .white)
-                    .cornerRadius(10)
-            }
-            .disabled(isTimerRunning || isTimerFinished)
-
-            // Finish Button
-           //NavigationLink(destination: DetailView(habit: Habit)
-            Button(action: finishTimer) {
-                Text("Finish")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(isFinishEnabled ? Color.blue : Color.gray.opacity(0.2))
-                    .foregroundColor(isFinishEnabled ? .white : .gray)
-                    .cornerRadius(10)
-            }
-            .disabled(!isFinishEnabled)
-        }
-        .padding()
-        .onAppear {
-            // Update remaining time if the timer is already running
-            if let endDate = timerEndDate, isTimerRunning {
-                remainingTime = max(0, endDate.timeIntervalSinceNow)
-                if remainingTime == 0 {
-                    isTimerRunning = false
-                    isFinishEnabled = true
+        NavigationView {
+            VStack(spacing: 40) {
+                // Circular Progress Indicator with Countdown
+                ZStack {
+                    Circle()
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 20)
+                    Circle()
+                        .trim(from: 0, to: progress)
+                        .stroke(Color.blue, style: StrokeStyle(lineWidth: 20, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    Text(formatTime(remainingTime))
+                        .font(.largeTitle)
+                        .bold()
+                }
+                .frame(width: 200, height: 200)
+                
+                // Ready Button
+                Button(action: startTimer) {
+                    Text("Ready")
+                        .font(.headline)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(isTimerRunning || isTimerFinished ? Color.gray.opacity(0.2) : Color.green)
+                        .foregroundColor(isTimerRunning || isTimerFinished ? .gray : .white)
+                        .cornerRadius(10)
+                }
+                .disabled(isTimerRunning || isTimerFinished)
+                
+                // Finish Button
+                //NavigationLink(destination: DetailView(habit: Habit)
+                Button(action: finishTimer) {
+                    Text("Finish")
+                        .font(.headline)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(isFinishEnabled ? Color.blue : Color.gray.opacity(0.2))
+                        .foregroundColor(isFinishEnabled ? .white : .gray)
+                        .cornerRadius(10)
+                }
+                .disabled(!isFinishEnabled)
+                NavigationLink(destination: DetailView(habit: habit), isActive: $finished) {
+                    EmptyView()
                 }
             }
+            .padding()
+            .onAppear {
+                // Update remaining time if the timer is already running
+                if let endDate = timerEndDate, isTimerRunning {
+                    remainingTime = max(0, endDate.timeIntervalSinceNow)
+                    if remainingTime == 0 {
+                        isTimerRunning = false
+                        isFinishEnabled = true
+                    }
+                }
+            }
+            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+                updateTimer()
+            }
+            .navigationTitle(habit.name)
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-            updateTimer()
-        }
-        .navigationTitle(habit.name)
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var progress: CGFloat {
@@ -99,7 +105,7 @@ struct StartTimerView: View {
     private func finishTimer() {
         guard isFinishEnabled else { return }
         print("Timer finished for habit: \(habit.name)")
-        // @TODO Go to DetailView
+        finished = true
     }
 
     private func formatTime(_ time: TimeInterval) -> String {

@@ -89,9 +89,6 @@ struct HabitListView: View {
             }
         }
 
-        .background(
-
-        )
         .sheet(isPresented: $showNewHabit, content: {
             HabitView()
         })

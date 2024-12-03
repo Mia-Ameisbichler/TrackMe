@@ -10,35 +10,52 @@ import UIKit
 struct DetailView: View {
     var habit: Habit
     let columns = Array(repeating: GridItem(.flexible()), count: 5)
+    @State private var homeButton = false;
     
     var body: some View {
-        VStack (alignment: .leading){
-            Image(uiImage: habit.image)
-                .resizable()
-                .scaledToFit()
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .padding()
-            Spacer()
+        NavigationStack {
+            VStack (alignment: .leading){
+                Image(uiImage: habit.image)
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding()
+                Spacer()
                 
-            
-            Text(habit.name)
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .center)
-            
-            Text(habit.info)
-                .font(.subheadline)
-                .frame(maxWidth: .infinity, alignment: .center)
-            
-            LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(0..<habit.streak, id: \.self) { number in
-                    Text("\(number + 1)")
-                        .frame(width: 50, height: 50)
-                        .background(Color.green.opacity(0.4))
-                        .cornerRadius(5)
-                        .padding(.top, 50)
+                
+                Text(habit.name)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                
+                Text(habit.info)
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(0..<habit.streak, id: \.self) { number in
+                        Text("\(number + 1)")
+                            .frame(width: 50, height: 50)
+                            .background(Color.green.opacity(0.4))
+                            .cornerRadius(5)
+                            .padding(.top, 50)
+                    }
+                }
+                .frame(maxHeight: .infinity, alignment: .top)
+            }
+            .navigationTitle("Details")
+            .navigationBarBackButtonHidden(true)
+            .toolbar() {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        homeButton = true
+                    } label: {
+                        Label("Home", systemImage: "house")
+                    }
                 }
             }
-            .frame(maxHeight: .infinity, alignment: .top)
+            NavigationLink(destination: HabitListView(), isActive: $homeButton) {
+                EmptyView()
+            }
         }
     }
 }
